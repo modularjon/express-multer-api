@@ -7,6 +7,7 @@ const crypto = require('crypto');
 
 const fileType = require('file-type');
 const AWS = require('aws-sdk');
+const awsModule = require('aws-s3-upload')
 
 const s3 = new AWS.S3({
   credentials: {
@@ -53,7 +54,7 @@ const awsUpload = (file) => {
   return randomHexString(16)
   .then((filename) => {
     let dir = new Date().toISOString().split('T')[0];
-    
+
     return {
       ACL: 'public-read',
       Body: file.data,

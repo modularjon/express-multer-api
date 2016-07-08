@@ -1,6 +1,14 @@
 'use strict';
 
 const fs = require('fs');
+const fileType = require('file-type');
+
+const mimeType = (data) => {
+  return Object.assign({
+    ext: 'bin',
+    mime: 'application/octet-stream',
+  }, fileType(data));
+};
 
 let filename = process.argv[2] || '';
 //reminder: this is how you get stuff FROM the command line
@@ -17,6 +25,24 @@ const readFile = (filename) => {
   });
 };
 
+const awsUpload = (file) => {
+  const options = {
+    ACL: 'public-read',
+    Body: file.data,
+    Bucket: 'modularjon.bucket',
+    ContentType: file.mime,
+    Key: `test/test.${file.ext}`,
+  };
+  return Promise.resolve(options);
+  // return options;
+};
+
 readFile(filename)
-  .then((data) => console.log(`${filename} is ${data.length} bytes long`))
-  .catch(console.error);
+.then((data) => {
+  let file = mimeType(data);
+  file.data = data;
+  return file;
+})
+.then(awsUpload)
+.then(console.log) //(data) => console.log(`${filename} is ${data.length} bytes long`))
+.catch(console.error);
